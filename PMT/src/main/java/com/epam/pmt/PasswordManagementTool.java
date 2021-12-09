@@ -3,7 +3,12 @@ package com.epam.pmt;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import com.epam.api.UserActivities;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
 import com.epam.factory.Factories;
 import com.epam.factory.Factory;
 import com.epam.globaldata.Operations;
@@ -11,19 +16,31 @@ import com.epam.model.Response;
 import com.epam.singleton.Loggers;
 import com.epam.singleton.Reader;
 
-public class App {
-	private static Loggers LOGGER;
+@Configuration
+@ComponentScan(basePackages = "com.epam.*")
+public class PasswordManagementTool {
+	@Autowired
+	private Loggers LOGGER;
 
 	public static void main(String[] args) {
+		PasswordManagementTool pmt = new PasswordManagementTool();
+		pmt.doProcess();
+	}
+
+	public void doProcess() {
+		@SuppressWarnings("resource")
+		ApplicationContext context = new AnnotationConfigApplicationContext(PasswordManagementTool.class);
+
 		LOGGER = Loggers.getLogger();
 
-		Factories factories = new Factories();
-		LOGGER.printInfo(App.class, printTemplate());
+		Factories factories = context.getBean(Factories.class);
+
+		LOGGER.printInfo(PasswordManagementTool.class, printTemplate());
 		BufferedReader reader = Reader.getReader();
 		String choice = "notExit";
 
 		while (!choice.equalsIgnoreCase("exit")) {
-			LOGGER.printInfo(App.class, "Enter Choice ::");
+			LOGGER.printInfo(PasswordManagementTool.class, "Enter Choice ::");
 			try {
 				choice = reader.readLine();
 
@@ -34,7 +51,7 @@ public class App {
 				Response response = factories.getFactory(choice);
 
 				if (!response.getStatus()) {
-					LOGGER.printError(App.class, (String) response.getMsg());
+					LOGGER.printError(PasswordManagementTool.class, (String) response.getMsg());
 					continue;
 				}
 
@@ -42,11 +59,10 @@ public class App {
 				factory.execute();
 
 			} catch (IOException ex) {
-				LOGGER.printError(App.class, ex.getMessage());
+				LOGGER.printError(PasswordManagementTool.class, ex.getMessage());
 			}
 		}
-		UserActivities.completed();
-		// Close the reader.
+		factories.close();
 		Reader.closeReader();
 	}
 

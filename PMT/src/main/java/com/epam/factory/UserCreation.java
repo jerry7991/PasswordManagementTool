@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.epam.dao.UserActivityDao;
 import com.epam.globaldata.Operations;
 import com.epam.model.AccountDetail;
@@ -15,12 +18,10 @@ import com.epam.model.UserDetails;
 import com.epam.singleton.Loggers;
 import com.epam.singleton.Reader;
 
+@Component
 public class UserCreation extends Master implements Factory {
+	@Autowired
 	private Loggers LOGGER;
-
-	public UserCreation() {
-		LOGGER = Loggers.getLogger();
-	}
 
 	@Override
 	public boolean execute() {
@@ -49,13 +50,11 @@ public class UserCreation extends Master implements Factory {
 
 			response = new UserActivityDao().addUser(userDetails);
 			LOGGER.printInfo(UserCreation.class, (String) response.getMsg());
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			LOGGER.printError(UserCreation.class, e.getMessage());
+			response = new Response(false, e.getMessage());
 		}
-
-		return false;
+		return response.getStatus();
 	}
 
 }

@@ -3,6 +3,9 @@ package com.epam.factory;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.epam.globaldata.Messages;
 import com.epam.globaldata.Operations;
 import com.epam.model.AccountDetail;
@@ -12,10 +15,13 @@ import com.epam.model.Response;
 import com.epam.singleton.Loggers;
 import com.epam.singleton.Reader;
 
+@Component
 public class Master {
 
 	private BufferedReader reader;
 	private String typeOfAccount;
+
+	@Autowired
 	private Loggers LOGGER;
 
 	public Master() {

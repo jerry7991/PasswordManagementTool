@@ -3,6 +3,9 @@ package com.epam.factory;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.epam.api.UserActivities;
 import com.epam.dao.UserActivityDao;
 import com.epam.model.FilterCredentials;
@@ -10,13 +13,11 @@ import com.epam.model.Response;
 import com.epam.singleton.Loggers;
 import com.epam.singleton.Reader;
 
+@Component
 public class GroupNameUpdation implements Factory {
 
+	@Autowired
 	Loggers LOGGER;
-
-	public GroupNameUpdation() {
-		LOGGER = Loggers.getLogger();
-	}
 
 	@Override
 	public boolean execute() {

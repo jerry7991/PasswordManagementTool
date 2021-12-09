@@ -2,7 +2,6 @@ package com.epam.api;
 
 import javax.persistence.EntityManager;
 
-import com.epam.dao.EntityFactory;
 import com.epam.model.AccountDetail;
 import com.epam.model.FilterCredentials;
 import com.epam.model.Response;
@@ -28,8 +27,6 @@ public interface UserActivities {
 
 	public Response getAllDetails(FilterCredentials filter);
 
-	public static void completed() {
-		EntityFactory.closeEntityFactory();
-	}
+	public void close();
 
 }

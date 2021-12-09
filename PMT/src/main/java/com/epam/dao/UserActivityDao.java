@@ -8,6 +8,9 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import com.epam.api.UserActivities;
 import com.epam.exceptions.GroupAlreadyExistException;
 import com.epam.factory.User;
@@ -18,15 +21,12 @@ import com.epam.model.Response;
 import com.epam.model.UserDetails;
 import com.epam.singleton.Loggers;
 
+@Component
 public class UserActivityDao extends Master implements UserActivities {
 
+	@Value(value = "#{entityFactory.getEntityManagerFactory()}")
 	private EntityManagerFactory entityManagerFactory;
 	private Loggers LOGGER;
-
-	public UserActivityDao() {
-		entityManagerFactory = EntityFactory.getEntityManagerFactory();
-		LOGGER = Loggers.getLogger();
-	}
 
 	@Override
 	public Response createPasswordAccount(AccountDetail accountDetail) {
@@ -250,6 +250,11 @@ public class UserActivityDao extends Master implements UserActivities {
 		}
 
 		return response;
+	}
+
+	@Override
+	public void close() {
+		entityManagerFactory.close();
 	}
 
 }

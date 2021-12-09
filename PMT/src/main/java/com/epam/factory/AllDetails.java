@@ -2,6 +2,9 @@ package com.epam.factory;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.epam.api.UserActivities;
 import com.epam.dao.UserActivityDao;
 import com.epam.globaldata.Operations;
@@ -10,13 +13,11 @@ import com.epam.model.Response;
 import com.epam.model.UserDetails;
 import com.epam.singleton.Loggers;
 
+@Component
 public class AllDetails extends Master implements Factory {
 
+	@Autowired
 	Loggers LOGGER;
-
-	public AllDetails() {
-		LOGGER = Loggers.getLogger();
-	}
 
 	@Override
 	public boolean execute() {

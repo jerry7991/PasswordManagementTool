@@ -6,18 +6,19 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.epam.api.Validation;
 import com.epam.globaldata.Messages;
 import com.epam.model.Response;
 import com.epam.singleton.Loggers;
 
+@Component
 public class ValidationImpl implements Validation {
 
+	@Autowired
 	Loggers LOGGER;
-
-	public ValidationImpl() {
-		LOGGER = Loggers.getLogger();
-	}
 
 	@Override
 	public Response isValidPassword(String password) {

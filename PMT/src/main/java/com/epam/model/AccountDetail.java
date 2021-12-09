@@ -10,6 +10,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.epam.service.ValidationImpl;
 import com.epam.singleton.Loggers;
 
@@ -31,12 +33,12 @@ public class AccountDetail extends ValidationImpl {
 	private String url;
 	private String password;
 
-//	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@ManyToOne
 	@JoinColumn(name = "GROUP_FK")
 	private GroupDetails groupDetails;
 
 	@Transient
+	@Autowired
 	private Loggers LOGGER;
 
 	public GroupDetails getGroupDetails() {
@@ -61,10 +63,6 @@ public class AccountDetail extends ValidationImpl {
 
 	public void setAccountId(int accountId) {
 		this.accountId = accountId;
-	}
-
-	public AccountDetail() {
-		LOGGER = Loggers.getLogger();
 	}
 
 	public String getAccountName() {
