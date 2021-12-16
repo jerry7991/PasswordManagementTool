@@ -5,7 +5,4 @@ public class GroupNotFoundException extends Exception {
 		super(errorMsg);
 	}
 
-	public GroupNotFoundException() {
-
-	}
 }

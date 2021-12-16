@@ -7,14 +7,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.epam.api.Validation;
-import com.epam.globaldata.Messages;
-import com.epam.model.Response;
-import com.epam.singleton.Loggers;
+import com.epam.dto.AccountDetailDto;
+import com.epam.dto.Response;
+import com.epam.util.Loggers;
 
-@Component
+@Service
 public class ValidationImpl implements Validation {
 
 	@Autowired
@@ -37,18 +37,21 @@ public class ValidationImpl implements Validation {
 			response = new Response(false,
 					"Password must be atleast length 8 and must contain numbers, alphabates and Uppercase");
 		}
+
+		System.out.println(response.getMsg());
+
 		return response;
 	}
 
 	@Override
-	public Response isGroupNameValid(String name) {
-		Response status = new Response();
-		status.setMsg(Messages.validAcc);
-		for (int i = 0; i < name.length() && status.getStatus(); i++) {
+	public Response isValidName(String name) {
+		Response status = new Response(true, "Valid");
+		status.setMsg("Valid name");
+		for (int i = 0; i < name.length() && status.isStatus(); i++) {
 			char ch = name.charAt(i);
 			if (!Character.isAlphabetic(ch)) {
 				status.setStatus(false);
-				status.setMsg(Messages.numaricFound + ", " + Messages.specialCharFound);
+				status.setMsg("Numerica or speacial character not allowed in name");
 			}
 		}
 		return status;
@@ -56,21 +59,26 @@ public class ValidationImpl implements Validation {
 
 	@Override
 	public Response isCorrectUrl(String url) {
-		Response status = new Response();
+		Response status = new Response(true, "Valid Url");
 		try {
 			new URL(url).toURI();
-
-			status.setMsg(Messages.validUrl);
-		} catch (URISyntaxException e) {
+		} catch (URISyntaxException | MalformedURLException e) {
 			status.setStatus(false);
-			status.setMsg(Messages.inValidUrl);
-			LOGGER.printError(ValidationImpl.class, Messages.inValidUrl);
-		} catch (MalformedURLException e) {
-			status.setStatus(false);
-			status.setMsg(Messages.inValidUrl);
-			LOGGER.printError(ValidationImpl.class, Messages.inValidUrl);
+			status.setMsg("InValid url");
+			LOGGER.printError(ValidationImpl.class, "InValid url");
 		}
 		return status;
+	}
+
+	@Override
+	public Response isAccountValid(AccountDetailDto accountDetailDto) {
+		Response response = isValidName(accountDetailDto.getAccountName());
+		if (response.isStatus()) {
+			response = (response = isCorrectUrl(accountDetailDto.getUrl())).isStatus()
+					? isValidPassword(accountDetailDto.getPassword())
+					: response;
+		}
+		return response;
 	}
 
 }

@@ -5,6 +5,4 @@ public class AuthenticationFailedExceptions extends Exception {
 		super(errMsg);
 	}
 
-	public AuthenticationFailedExceptions() {
-	}
 }
