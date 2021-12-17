@@ -19,7 +19,6 @@ public class Loggers {
 	}
 
 	public void printInfo(final Class<?> clazz, String msg) {
-//		System.out.println(msg);
 		LOGGER = LogManager.getLogger(clazz);
 		LOGGER.info(msg);
 	}

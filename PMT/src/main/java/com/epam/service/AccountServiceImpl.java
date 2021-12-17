@@ -1,6 +1,5 @@
 package com.epam.service;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -139,8 +138,7 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public boolean isAlreadyMappedAccountWithGroup(String accountName, int groupFk) {
-		return accountRepository.countAccountByGroupIdAndAccountName(accountName, groupFk)
-				.compareTo(new BigInteger("0")) > 0;
+		return accountRepository.countAccountByGroupIdAndAccountName(accountName, groupFk) != null;
 	}
 
 }

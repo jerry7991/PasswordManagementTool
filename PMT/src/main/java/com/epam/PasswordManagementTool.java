@@ -9,11 +9,6 @@ import org.springframework.context.annotation.Bean;
 public class PasswordManagementTool {
 
 	public static void main(String[] args) {
-		PasswordManagementTool pmt = new PasswordManagementTool();
-		pmt.doProcess();
-	}
-
-	public void doProcess() {
 		SpringApplication.run(PasswordManagementTool.class);
 	}
 

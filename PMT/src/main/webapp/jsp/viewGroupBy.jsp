@@ -68,6 +68,17 @@
 						</div>
 					</div>
 				</form>
+				<form action="searchGroup" method=POST id="addr0" data-id="0">
+					<h3>Search Group</h3>
+					<div>
+						<div class="col-md-10" style="float: left">
+							<input type="text" name="groupName" class="form-control" placeholder="group name">
+						</div>
+						<div class="col-md-2" style="float: right">
+							<input type="Submit" value="Search" class="btn btn-success">
+						</div>
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>

@@ -3,6 +3,7 @@ package com.epam.service_test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -16,8 +17,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
 
 import com.epam.api.Validation;
+import com.epam.dto.GroupDetailsDto;
 import com.epam.dto.Response;
 import com.epam.dto.UserData;
 import com.epam.entities.GroupDetails;
@@ -42,16 +45,22 @@ class GroupServiceImplTest {
 	@Mock
 	private Validation validation;
 
+	@Mock
+	private ModelMapper modelMapper;
+
 	@InjectMocks
 	private GroupServiceImpl groupServiceImpl;
 
 	@Mock
 	private static UserData userData;
 	private static UserDetails userDetails;
+	private GroupDetails groupDetails;
+	private ModelMapper localMapper;
 
 	@BeforeEach
 	public void init() {
-		GroupDetails groupDetails = new GroupDetails();
+		localMapper = new ModelMapper();
+		groupDetails = new GroupDetails();
 		userDetails = new UserDetails();
 		userDetails.setUserId(1);
 
@@ -96,6 +105,8 @@ class GroupServiceImplTest {
 	@Test
 	void testGetAllGroup() {
 		when(groupRepository.findByUserId(userData.getId())).thenReturn(userDetails.getGroupDetails());
+		when(modelMapper.map(groupDetails, GroupDetailsDto.class))
+				.thenReturn(localMapper.map(groupDetails, GroupDetailsDto.class));
 		assertNotNull(groupServiceImpl.getAllGroup());
 	}
 
@@ -112,6 +123,18 @@ class GroupServiceImplTest {
 	void testModifyGroupNameEx() {
 		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(new BigInteger("1"));
 		assertFalse(groupServiceImpl.modifyGroupName(userData.getId(), "yahoo").isStatus());
+	}
+
+	@Test
+	void testGetGroupByName() {
+		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(null);
+		assertNull(groupServiceImpl.getGroupByName("yahoo"));
+	}
+
+	@Test
+	void testGetGroupByNameEx() {
+		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(new BigInteger("1"));
+		assertNull(groupServiceImpl.getGroupByName("yahoo"));
 	}
 
 }

@@ -21,4 +21,7 @@ public interface GroupRepository extends JpaRepository<GroupDetails, Integer> {
 
 	@Query(value = "select count(*) from group_details where user_fk=?1 and group_name=?2", nativeQuery = true)
 	public BigInteger existsByGroupNameAndUserId(int userId, String newGroupName);
+
+	@Query(value = "select * from group_details where user_fk=?1 and group_name=?2", nativeQuery = true)
+	public GroupDetails findByGroupNameAndUserId(int userId, String newGroupName);
 }

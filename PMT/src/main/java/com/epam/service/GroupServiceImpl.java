@@ -2,12 +2,15 @@ package com.epam.service;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.epam.api.GroupService;
 import com.epam.api.Validation;
+import com.epam.dto.GroupDetailsDto;
 import com.epam.dto.Response;
 import com.epam.dto.UserData;
 import com.epam.entities.GroupDetails;
@@ -32,6 +35,9 @@ public class GroupServiceImpl implements GroupService {
 	UserData userData;
 
 	@Autowired
+	ModelMapper modelMapper;
+
+	@Autowired
 	private Loggers LOGGER;
 
 	@Autowired
@@ -44,6 +50,10 @@ public class GroupServiceImpl implements GroupService {
 			if (!response.isStatus()) {
 				throw new ValidationFailedException((String) response.getMsg());
 			}
+			if (groupRepository.existsByGroupNameAndUserId(userData.getId(), groupName) != null) {
+				throw new GroupAlreadyExistException(groupName + " already mapped with the user");
+			}
+
 			UserDetails userDetails = userRepository.getById(userData.getId());
 			GroupDetails groupDetails = new GroupDetails();
 			groupDetails.setGroupName(groupName);
@@ -52,7 +62,7 @@ public class GroupServiceImpl implements GroupService {
 			response.setMsg(addedUserDetails != null ? "Group Added" : "Group Addition failed.");
 			response.setStatus(addedUserDetails != null);
 			LOGGER.printDebug(GroupServiceImpl.class, "User Details saved");
-		} catch (ValidationFailedException ex) {
+		} catch (ValidationFailedException | GroupAlreadyExistException ex) {
 			LOGGER.printError(GroupServiceImpl.class, ex.getMessage());
 			response = new Response(false, ex.getMessage());
 		}
@@ -78,9 +88,10 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	@Override
-	public List<GroupDetails> getAllGroup() {
+	public List<GroupDetailsDto> getAllGroup() {
 
-		return groupRepository.findByUserId(userData.getId());
+		return (groupRepository.findByUserId(userData.getId())).stream()
+				.map(group -> modelMapper.map(group, GroupDetailsDto.class)).collect(Collectors.toList());
 
 	}
 
@@ -105,5 +116,20 @@ public class GroupServiceImpl implements GroupService {
 			LOGGER.printError(GroupServiceImpl.class, ex.getMessage());
 		}
 		return response;
+	}
+
+	@Override
+	public GroupDetailsDto getGroupByName(String groupName) {
+		GroupDetailsDto groupDetailsDto = null;
+		try {
+			if (groupRepository.existsByGroupNameAndUserId(userData.getId(), groupName) != null) {
+				throw new GroupNotFoundException(groupName + " not mapped with the user");
+			}
+			groupDetailsDto = modelMapper.map(groupRepository.findByGroupNameAndUserId(userData.getId(), groupName),
+					GroupDetailsDto.class);
+		} catch (GroupNotFoundException ex) {
+			LOGGER.printError(GroupServiceImpl.class, ex.getMessage());
+		}
+		return groupDetailsDto;
 	}
 }

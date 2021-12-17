@@ -21,4 +21,6 @@ public class AccountDetailDto {
 
 	private GroupDetailsDto groupDetailsDto;
 
+	private String groupName;
+
 }

@@ -20,9 +20,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.epam.api.GroupService;
 import com.epam.controller.GroupController;
-import com.epam.entities.AccountDetail;
-import com.epam.entities.GroupDetails;
-import com.epam.entities.UserDetails;
+import com.epam.dto.AccountDetailDto;
+import com.epam.dto.GroupDetailsDto;
+import com.epam.dto.UserDetailsDto;
 
 @WebMvcTest(GroupController.class)
 @ContextConfiguration(classes = { GroupController.class })
@@ -33,35 +33,35 @@ class GroupControllerTest {
 	@MockBean
 	private GroupService groupService;
 
-	private UserDetails userDetails;
-	private List<AccountDetail> accounts;
-	private GroupDetails groupDetails;
+	private UserDetailsDto userDetails;
+	private List<AccountDetailDto> accounts;
+	private GroupDetailsDto groupDetails;
 
 	@BeforeEach
 	public void init() {
-		groupDetails = new GroupDetails();
-		userDetails = new UserDetails();
+		groupDetails = new GroupDetailsDto();
+		userDetails = new UserDetailsDto();
 		userDetails.setUserId(1);
 		groupDetails.setGroupId(2);
 		groupDetails.setGroupName("google");
 		userDetails.setUserName("admin");
 		userDetails.setMasterPassword("Admin@123");
-		AccountDetail accountDetail = new AccountDetail();
+		AccountDetailDto accountDetail = new AccountDetailDto();
 		accountDetail.setAccountId(2);
 		accountDetail.setAccountName("gmail");
 		accountDetail.setUrl("https://gmail.com");
 		accountDetail.setPassword("Gmail@1234");
 		accounts = new ArrayList<>();
 		accounts.add(accountDetail);
-		groupDetails.setAccounts(accounts);
-		List<GroupDetails> groups = new ArrayList<>();
+		groupDetails.setAccountsDto(accounts);
+		List<GroupDetailsDto> groups = new ArrayList<>();
 		groups.add(groupDetails);
-		userDetails.setGroupDetails(groups);
+		userDetails.setGroupDetailsDto(groups);
 	}
 
 	@Test
 	void testGetGroupDetails() throws Exception {
-		when(groupService.getAllGroup()).thenReturn(userDetails.getGroupDetails());
+		when(groupService.getAllGroup()).thenReturn(userDetails.getGroupDetailsDto());
 		mockMvc.perform(post("/viewGroupBy").contentType(MediaType.APPLICATION_FORM_URLENCODED))
 				.andExpect(status().isOk()).andExpect(view().name("viewGroupBy"));
 	}
@@ -69,7 +69,7 @@ class GroupControllerTest {
 	@Test
 	void testAddGroup() throws Exception {
 		when(groupService.addGroup("google")).thenReturn(true);
-		when(groupService.getAllGroup()).thenReturn(userDetails.getGroupDetails());
+		when(groupService.getAllGroup()).thenReturn(userDetails.getGroupDetailsDto());
 		mockMvc.perform(post("/addGroup?groupName=google").contentType(MediaType.APPLICATION_FORM_URLENCODED))
 				.andExpect(status().isOk()).andExpect(view().name("viewGroupBy"));
 	}
@@ -85,9 +85,15 @@ class GroupControllerTest {
 	@Test
 	void testDeleteGroup() throws Exception {
 		when(groupService.deleteGroup(1, "google")).thenReturn(true);
-		when(groupService.getAllGroup()).thenReturn(userDetails.getGroupDetails());
+		when(groupService.getAllGroup()).thenReturn(userDetails.getGroupDetailsDto());
 		mockMvc.perform(get("/deleteGroup?groupName=google&groupId=1")).andExpect(status().isOk())
 				.andExpect(view().name("viewGroupBy"));
 	}
 
+	@Test
+	void testsearchGroup() throws Exception {
+		when(groupService.getGroupByName("google")).thenReturn(userDetails.getGroupDetailsDto().get(0));
+		mockMvc.perform(post("/searchGroup?groupName=google")).andExpect(status().isOk())
+				.andExpect(view().name("viewGroupBy"));
+	}
 }
