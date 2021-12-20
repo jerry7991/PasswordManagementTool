@@ -6,35 +6,34 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Loggers {
-	private static Loggers logger;
-	private Logger LOGGER;
+	private Logger logger;
 
 	private Loggers() {
 
 	}
 
 	public void printError(final Class<?> clazz, String msg) {
-		LOGGER = LogManager.getLogger(clazz);
-		LOGGER.error(msg);
+		logger = LogManager.getLogger(clazz);
+		logger.error(msg);
 	}
 
 	public void printInfo(final Class<?> clazz, String msg) {
-		LOGGER = LogManager.getLogger(clazz);
-		LOGGER.info(msg);
+		logger = LogManager.getLogger(clazz);
+		logger.info(msg);
 	}
 
 	public void printFatal(final Class<?> clazz, String msg) {
-		LOGGER = LogManager.getLogger(clazz);
-		LOGGER.fatal(msg);
+		logger = LogManager.getLogger(clazz);
+		logger.fatal(msg);
 	}
 
 	public void printDebug(final Class<?> clazz, String msg) {
-		LOGGER = LogManager.getLogger(clazz);
-		LOGGER.debug(msg);
+		logger = LogManager.getLogger(clazz);
+		logger.debug(msg);
 	}
 
 	public void printWarn(final Class<?> clazz, String msg) {
-		LOGGER = LogManager.getLogger(clazz);
-		LOGGER.warn(msg);
+		logger = LogManager.getLogger(clazz);
+		logger.warn(msg);
 	}
 }

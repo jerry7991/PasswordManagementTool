@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.epam.api.AccountService;
 import com.epam.dto.AccountDetailDto;
+import com.epam.util.Constants;
 
 @Controller
 public class AccountController {
@@ -20,9 +21,9 @@ public class AccountController {
 	public ModelAndView getAccounts(int groupId) {
 		List<AccountDetailDto> accounts = accountService.findAccountByGroupId(groupId);
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("getAccount");
-		modelAndView.addObject("accounts", accounts);
-		modelAndView.addObject("groupId", groupId);
+		modelAndView.setViewName(Constants.ACCOUNT_CONTROLER);
+		modelAndView.addObject(Constants.ACCOUNT_RESPONSE, accounts);
+		modelAndView.addObject(Constants.GROUP_ID, groupId);
 		return modelAndView;
 	}
 
@@ -30,8 +31,8 @@ public class AccountController {
 	public ModelAndView addAccount(AccountDetailDto accountDetailDto) {
 		List<AccountDetailDto> accounts = accountService.addAccount(accountDetailDto);
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("getAccount");
-		modelAndView.addObject("accounts", accounts);
+		modelAndView.setViewName(Constants.ACCOUNT_CONTROLER);
+		modelAndView.addObject(Constants.ACCOUNT_RESPONSE, accounts);
 		return modelAndView;
 	}
 
@@ -39,9 +40,9 @@ public class AccountController {
 	public ModelAndView updateAccount(AccountDetailDto accountDetailDto) {
 		List<AccountDetailDto> updateAccounts = accountService.updateAccount(accountDetailDto);
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("getAccount");
-		modelAndView.addObject("accounts", updateAccounts);
-		modelAndView.addObject("groupId", accountDetailDto.getGroupId());
+		modelAndView.setViewName(Constants.ACCOUNT_CONTROLER);
+		modelAndView.addObject(Constants.ACCOUNT_RESPONSE, updateAccounts);
+		modelAndView.addObject(Constants.GROUP_ID, accountDetailDto.getGroupId());
 		return modelAndView;
 	}
 
@@ -49,9 +50,9 @@ public class AccountController {
 	public ModelAndView deleteAccount(AccountDetailDto accountDetailDto) {
 		List<AccountDetailDto> updateAccounts = accountService.deleteAccountById(accountDetailDto);
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("getAccount");
-		modelAndView.addObject("accounts", updateAccounts);
-		modelAndView.addObject("groupId", accountDetailDto.getGroupId());
+		modelAndView.setViewName(Constants.ACCOUNT_CONTROLER);
+		modelAndView.addObject(Constants.ACCOUNT_RESPONSE, updateAccounts);
+		modelAndView.addObject(Constants.GROUP_ID, accountDetailDto.getGroupId());
 		return modelAndView;
 	}
 
@@ -61,7 +62,7 @@ public class AccountController {
 		accountDetailDto.setGroupId(groupId);
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("ShowUpdateAccount");
-		modelAndView.addObject("account", accountDetailDto);
+		modelAndView.addObject(Constants.ACCOUNT_RESPONSE, accountDetailDto);
 		return modelAndView;
 	}
 }

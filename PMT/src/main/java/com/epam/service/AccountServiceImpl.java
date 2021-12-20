@@ -35,7 +35,7 @@ public class AccountServiceImpl implements AccountService {
 	private Validation validation;
 
 	@Autowired
-	private Loggers LOGGER;
+	private Loggers logger;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -51,7 +51,7 @@ public class AccountServiceImpl implements AccountService {
 			if (isAlreadyMappedAccountWithGroup(accountDetailDto.getAccountName(), accountDetailDto.getGroupId())) {
 				throw new AccountMappingWithGroupException("Account Allready mapped with given group");
 			}
-			LOGGER.printInfo(AccountServiceImpl.class, "User Validated for account");
+			logger.printInfo(AccountServiceImpl.class, "User Validated for account");
 			Optional<GroupDetails> option = groupRepository.findById(accountDetailDto.getGroupId());
 			if (option.isPresent()) {
 				GroupDetails groupDetails = option.get();
@@ -65,7 +65,7 @@ public class AccountServiceImpl implements AccountService {
 			}
 			accounts = findAccountByGroupId(accountDetailDto.getGroupId());
 		} catch (ValidationFailedException | AccountMappingWithGroupException | GroupNotFoundException ex) {
-			LOGGER.printError(AccountServiceImpl.class, ex.getMessage());
+			logger.printError(AccountServiceImpl.class, ex.getMessage());
 		} finally {
 			accounts = findAccountByGroupId(accountDetailDto.getGroupId());
 		}
@@ -93,7 +93,7 @@ public class AccountServiceImpl implements AccountService {
 			updatedAccount = findAccountByGroupId(accountDetailDto.getGroupId());
 
 		} catch (AccountNotFoundException ex) {
-			LOGGER.printError(AccountServiceImpl.class, ex.getMessage());
+			logger.printError(AccountServiceImpl.class, ex.getMessage());
 		}
 		return updatedAccount;
 	}
@@ -118,7 +118,7 @@ public class AccountServiceImpl implements AccountService {
 			accountRepository.deleteById(accountDetailDto.getAccountId());
 			updatedAccount = findAccountByGroupId(accountDetailDto.getGroupId());
 		} catch (AccountNotFoundException ex) {
-			LOGGER.printError(AccountServiceImpl.class, ex.getMessage());
+			logger.printError(AccountServiceImpl.class, ex.getMessage());
 		}
 		return updatedAccount;
 	}
@@ -131,7 +131,7 @@ public class AccountServiceImpl implements AccountService {
 			accountDetailDto = modelMapper.map(option.orElseThrow(AccountNotFoundException::new),
 					AccountDetailDto.class);
 		} catch (AccountNotFoundException ex) {
-			LOGGER.printError(AccountServiceImpl.class, ex.getMessage());
+			logger.printError(AccountServiceImpl.class, ex.getMessage());
 		}
 		return accountDetailDto;
 	}

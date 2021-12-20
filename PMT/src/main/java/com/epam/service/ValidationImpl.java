@@ -18,7 +18,7 @@ import com.epam.util.Loggers;
 public class ValidationImpl implements Validation {
 
 	@Autowired
-	Loggers LOGGER;
+	Loggers logger;
 
 	@Override
 	public Response isValidPassword(String password) {
@@ -37,8 +37,6 @@ public class ValidationImpl implements Validation {
 			response = new Response(false,
 					"Password must be atleast length 8 and must contain numbers, alphabates and Uppercase");
 		}
-
-		System.out.println(response.getMsg());
 
 		return response;
 	}
@@ -65,7 +63,7 @@ public class ValidationImpl implements Validation {
 		} catch (URISyntaxException | MalformedURLException e) {
 			status.setStatus(false);
 			status.setMsg("InValid url");
-			LOGGER.printError(ValidationImpl.class, "InValid url");
+			logger.printError(ValidationImpl.class, "InValid url");
 		}
 		return status;
 	}
@@ -74,9 +72,10 @@ public class ValidationImpl implements Validation {
 	public Response isAccountValid(AccountDetailDto accountDetailDto) {
 		Response response = isValidName(accountDetailDto.getAccountName());
 		if (response.isStatus()) {
-			response = (response = isCorrectUrl(accountDetailDto.getUrl())).isStatus()
-					? isValidPassword(accountDetailDto.getPassword())
-					: response;
+			response = isCorrectUrl(accountDetailDto.getUrl());
+			if (response.isStatus()) {
+				response = isValidPassword(accountDetailDto.getPassword());
+			}
 		}
 		return response;
 	}

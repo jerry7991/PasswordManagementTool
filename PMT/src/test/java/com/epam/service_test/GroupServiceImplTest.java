@@ -91,6 +91,13 @@ class GroupServiceImplTest {
 	}
 
 	@Test
+	void testAddGroupException() {
+		when(validation.isValidName("google")).thenReturn(new Response(true, "valid"));
+		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "google")).thenReturn(new BigInteger("1"));
+		assertFalse(groupServiceImpl.addGroup("google"));
+	}
+
+	@Test
 	void testDeleteGroup() {
 		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(new BigInteger("1"));
 		assertTrue(groupServiceImpl.deleteGroup(userData.getId(), "yahoo"));
@@ -98,7 +105,7 @@ class GroupServiceImplTest {
 
 	@Test
 	void testDeleteGroupEx() {
-		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(new BigInteger("0"));
+		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(null);
 		assertFalse(groupServiceImpl.deleteGroup(userData.getId(), "yahoo"));
 	}
 
@@ -113,7 +120,7 @@ class GroupServiceImplTest {
 	@Test
 	void testModifyGroupName() {
 		GroupDetails groupDetails = userDetails.getGroupDetails().get(0);
-		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(new BigInteger("0"));
+		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(null);
 		when(groupRepository.getById(groupDetails.getGroupId())).thenReturn(groupDetails);
 		groupServiceImpl.modifyGroupName(groupDetails.getGroupId(), "yahoo");
 		assertEquals("yahoo", groupDetails.getGroupName());

@@ -84,7 +84,7 @@ class AccountServiceImplTest {
 	@Test
 	void testAddAccountEx() {
 		when(validation.isAccountValid(accountDetailDto)).thenReturn(new Response(false, "Invalid"));
-		assertEquals(accountServiceImpl.addAccount(accountDetailDto).size(), 0);
+		assertEquals(0, accountServiceImpl.addAccount(accountDetailDto).size());
 	}
 
 	@Test

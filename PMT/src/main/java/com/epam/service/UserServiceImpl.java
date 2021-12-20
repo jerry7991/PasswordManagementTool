@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService {
 	private UserRepository userRepository;
 
 	@Autowired
-	private Loggers LOGGER;
+	private Loggers logger;
 
 	@Autowired
 	private UserData userData;
@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
 					userDetails.getMasterPassword());
 			response = new Response(isAdded, isAdded ? "User Added SuccessFully" : "User Addition Failed");
 		} catch (UserAlreadyExistException ex) {
-			LOGGER.printError(UserServiceImpl.class, ex.getMessage());
+			logger.printError(UserServiceImpl.class, ex.getMessage());
 			response = new Response(false, ex.getMessage());
 		}
 		return response;
@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
 				throw new AuthenticationFailedExceptions("User Id or Password are incorrect");
 			}
 		} catch (AuthenticationFailedExceptions ex) {
-			LOGGER.printError(UserServiceImpl.class, ex.getMessage());
+			logger.printError(UserServiceImpl.class, ex.getMessage());
 		}
 		return userDetails;
 	}
@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
 			response = new Response(true, userDetails);
 		} catch (AuthenticationFailedExceptions ex) {
 			response = new Response(false, ex.getMessage());
-			LOGGER.printFatal(UserServiceImpl.class, ex.getMessage());
+			logger.printFatal(UserServiceImpl.class, ex.getMessage());
 		}
 		return response;
 	}

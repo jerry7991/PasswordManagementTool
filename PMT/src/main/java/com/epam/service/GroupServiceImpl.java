@@ -1,6 +1,5 @@
 package com.epam.service;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +37,7 @@ public class GroupServiceImpl implements GroupService {
 	ModelMapper modelMapper;
 
 	@Autowired
-	private Loggers LOGGER;
+	private Loggers logger;
 
 	@Autowired
 	private Validation validation;
@@ -59,11 +58,11 @@ public class GroupServiceImpl implements GroupService {
 			groupDetails.setGroupName(groupName);
 			userDetails.getGroupDetails().add(groupDetails);
 			UserDetails addedUserDetails = userRepository.save(userDetails);
-			response.setMsg(addedUserDetails != null ? "Group Added" : "Group Addition failed.");
+			response.setMsg("Group Added");
 			response.setStatus(addedUserDetails != null);
-			LOGGER.printDebug(GroupServiceImpl.class, "User Details saved");
+			logger.printDebug(GroupServiceImpl.class, "User Details saved");
 		} catch (ValidationFailedException | GroupAlreadyExistException ex) {
-			LOGGER.printError(GroupServiceImpl.class, ex.getMessage());
+			logger.printError(GroupServiceImpl.class, ex.getMessage());
 			response = new Response(false, ex.getMessage());
 		}
 		return response.isStatus();
@@ -73,8 +72,7 @@ public class GroupServiceImpl implements GroupService {
 	public boolean deleteGroup(int groupId, String groupName) {
 		boolean isDeleted = false;
 		try {
-			if (groupRepository.existsByGroupNameAndUserId(userData.getId(), groupName)
-					.compareTo(new BigInteger("0")) == 0) {
+			if (groupRepository.existsByGroupNameAndUserId(userData.getId(), groupName) == null) {
 				throw new GroupNotFoundException(groupName + " not mapped with the user");
 			}
 
@@ -82,7 +80,7 @@ public class GroupServiceImpl implements GroupService {
 			isDeleted = !groupRepository.existsById(groupId);
 
 		} catch (GroupNotFoundException ex) {
-			LOGGER.printError(GroupServiceImpl.class, ex.getMessage());
+			logger.printError(GroupServiceImpl.class, ex.getMessage());
 		}
 		return isDeleted;
 	}
@@ -99,8 +97,7 @@ public class GroupServiceImpl implements GroupService {
 	public Response modifyGroupName(int groupId, String newGroupName) {
 		Response response = null;
 		try {
-			if (groupRepository.existsByGroupNameAndUserId(userData.getId(), newGroupName)
-					.compareTo(new BigInteger("0")) > 0) {
+			if (groupRepository.existsByGroupNameAndUserId(userData.getId(), newGroupName) != null) {
 				throw new GroupAlreadyExistException(newGroupName + " already mapped with the user");
 			}
 
@@ -113,7 +110,7 @@ public class GroupServiceImpl implements GroupService {
 
 		} catch (GroupAlreadyExistException ex) {
 			response = new Response(false, ex.getMessage());
-			LOGGER.printError(GroupServiceImpl.class, ex.getMessage());
+			logger.printError(GroupServiceImpl.class, ex.getMessage());
 		}
 		return response;
 	}
@@ -128,7 +125,7 @@ public class GroupServiceImpl implements GroupService {
 			groupDetailsDto = modelMapper.map(groupRepository.findByGroupNameAndUserId(userData.getId(), groupName),
 					GroupDetailsDto.class);
 		} catch (GroupNotFoundException ex) {
-			LOGGER.printError(GroupServiceImpl.class, ex.getMessage());
+			logger.printError(GroupServiceImpl.class, ex.getMessage());
 		}
 		return groupDetailsDto;
 	}

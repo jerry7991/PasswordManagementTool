@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.epam.api.GroupService;
 import com.epam.dto.GroupDetailsDto;
+import com.epam.util.Constants;
 
 @Controller
 public class GroupController {
@@ -22,8 +23,8 @@ public class GroupController {
 	public ModelAndView getGroupDetails() {
 		List<GroupDetailsDto> groupDetails = groupService.getAllGroup();
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("viewGroupBy");
-		modelAndView.addObject("GroupDetails", groupDetails);
+		modelAndView.setViewName(Constants.GROUP_CONTROLER);
+		modelAndView.addObject(Constants.GROUP_RESPONSE, groupDetails);
 		return modelAndView;
 	}
 
@@ -32,8 +33,8 @@ public class GroupController {
 		boolean isAdded = groupService.addGroup(groupName);
 		List<GroupDetailsDto> groupDetails = groupService.getAllGroup();
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("viewGroupBy");
-		modelAndView.addObject("GroupDetails", groupDetails);
+		modelAndView.setViewName(Constants.GROUP_CONTROLER);
+		modelAndView.addObject(Constants.GROUP_RESPONSE, groupDetails);
 		modelAndView.addObject("response", isAdded ? "Group Added" : "Group Addition failed");
 		return modelAndView;
 	}
@@ -43,8 +44,8 @@ public class GroupController {
 		groupService.modifyGroupName(groupId, groupName);
 		List<GroupDetailsDto> groupDetails = groupService.getAllGroup();
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("viewGroupBy");
-		modelAndView.addObject("GroupDetails", groupDetails);
+		modelAndView.setViewName(Constants.GROUP_CONTROLER);
+		modelAndView.addObject(Constants.GROUP_RESPONSE, groupDetails);
 		return modelAndView;
 	}
 
@@ -53,8 +54,8 @@ public class GroupController {
 		boolean isDeleted = groupService.deleteGroup(groupId, groupName);
 		List<GroupDetailsDto> groupDetails = groupService.getAllGroup();
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("viewGroupBy");
-		modelAndView.addObject("GroupDetails", groupDetails);
+		modelAndView.setViewName(Constants.GROUP_CONTROLER);
+		modelAndView.addObject(Constants.GROUP_RESPONSE, groupDetails);
 		modelAndView.addObject("response", isDeleted ? "Deleted Successfully" : "Deletion Failed");
 		return modelAndView;
 	}
@@ -63,8 +64,8 @@ public class GroupController {
 	public ModelAndView searchGroup(String groupName) {
 		List<GroupDetailsDto> groupDetailsDto = Arrays.asList(groupService.getGroupByName(groupName));
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("viewGroupBy");
-		modelAndView.addObject("GroupDetails", groupDetailsDto);
+		modelAndView.setViewName(Constants.GROUP_CONTROLER);
+		modelAndView.addObject(Constants.GROUP_RESPONSE, groupDetailsDto);
 		return modelAndView;
 	}
 }
