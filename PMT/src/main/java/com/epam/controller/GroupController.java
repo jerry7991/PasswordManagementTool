@@ -11,6 +11,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.epam.api.GroupService;
 import com.epam.dto.GroupDetailsDto;
+import com.epam.exceptions.GroupAlreadyExistException;
+import com.epam.exceptions.GroupNotFoundException;
 import com.epam.util.Constants;
 
 @Controller
@@ -29,7 +31,7 @@ public class GroupController {
 	}
 
 	@PostMapping("addGroup")
-	public ModelAndView addGroup(String groupName) {
+	public ModelAndView addGroup(String groupName) throws GroupAlreadyExistException {
 		boolean isAdded = groupService.addGroup(groupName);
 		List<GroupDetailsDto> groupDetails = groupService.getAllGroup();
 		ModelAndView modelAndView = new ModelAndView();
@@ -40,7 +42,7 @@ public class GroupController {
 	}
 
 	@PostMapping("UpdateGroupName")
-	public ModelAndView updateGroupName(String groupName, int groupId) {
+	public ModelAndView updateGroupName(String groupName, int groupId) throws GroupAlreadyExistException {
 		groupService.modifyGroupName(groupId, groupName);
 		List<GroupDetailsDto> groupDetails = groupService.getAllGroup();
 		ModelAndView modelAndView = new ModelAndView();
@@ -50,8 +52,8 @@ public class GroupController {
 	}
 
 	@GetMapping("deleteGroup")
-	public ModelAndView deleteGroup(String groupName, int groupId) {
-		boolean isDeleted = groupService.deleteGroup(groupId, groupName);
+	public ModelAndView deleteGroup(String groupName, int groupId) throws GroupNotFoundException {
+		boolean isDeleted = groupService.deleteGroup(groupId);
 		List<GroupDetailsDto> groupDetails = groupService.getAllGroup();
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName(Constants.GROUP_CONTROLER);
@@ -61,7 +63,7 @@ public class GroupController {
 	}
 
 	@PostMapping("searchGroup")
-	public ModelAndView searchGroup(String groupName) {
+	public ModelAndView searchGroup(String groupName) throws GroupNotFoundException {
 		List<GroupDetailsDto> groupDetailsDto = Arrays.asList(groupService.getGroupByName(groupName));
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName(Constants.GROUP_CONTROLER);

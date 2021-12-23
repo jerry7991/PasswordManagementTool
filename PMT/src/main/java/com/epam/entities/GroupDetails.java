@@ -11,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Pattern;
 
 @Entity
 @Table(name = "GROUP_DETAILS")
@@ -21,6 +22,7 @@ public class GroupDetails {
 	private int groupId;
 
 	@Column(name = "GROUP_NAME", unique = true)
+	@Pattern(regexp = "(?=.*[A-Z])(?=\\S+$).{5,20}$", message = "Size:{5, 20}, Atleast 1 {upper}!")
 	private String groupName;
 
 	@OneToMany(cascade = CascadeType.ALL, targetEntity = AccountDetail.class, fetch = FetchType.LAZY, mappedBy = "groupDetails")

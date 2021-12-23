@@ -75,8 +75,7 @@ class UserControllerTest {
 
 	@Test
 	void testAddUser() throws Exception {
-		Response response = new Response(true, userDetails);
-		when(userService.addUser(userDetails)).thenReturn(response);
+		when(userService.addUser(userDetails)).thenReturn(true);
 		mockMvc.perform(post("/creatUser?userName=gmail&password=Gmail@1234")
 				.contentType(MediaType.APPLICATION_FORM_URLENCODED)).andExpect(status().isOk())
 				.andExpect(view().name("home"));

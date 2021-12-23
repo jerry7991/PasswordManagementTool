@@ -67,7 +67,7 @@ class AccountControllerTest {
 
 	@Test
 	void testAddAccount() throws Exception {
-		when(accountService.addAccount(accounts.get(0))).thenReturn(accounts);
+		when(accountService.addAccount(accounts.get(0))).thenReturn(true);
 		mockMvc.perform(
 				post("/addAccount?accountId=1&accountName=gmail&groupId=1&url=https://url.com&password=Gmail@1234")
 						.contentType(MediaType.APPLICATION_FORM_URLENCODED))
@@ -76,7 +76,7 @@ class AccountControllerTest {
 
 	@Test
 	void testUpdateAccount() throws Exception {
-		when(accountService.updateAccount(accounts.get(0))).thenReturn(accounts);
+		when(accountService.updateAccount(accounts.get(0))).thenReturn(true);
 		mockMvc.perform(
 				post("/updateAccount?accountName=gmail&url=https://url.com&password=Gmail@1234&accountId=1&groupId=1")
 						.contentType(MediaType.APPLICATION_FORM_URLENCODED))
@@ -85,7 +85,7 @@ class AccountControllerTest {
 
 	@Test
 	void testDeleteAccount() throws Exception {
-		when(accountService.updateAccount(accounts.get(0))).thenReturn(accounts);
+		when(accountService.updateAccount(accounts.get(0))).thenReturn(true);
 		mockMvc.perform(
 				post("/deleteAccount?accountName=gmail&url=https://url.com&password=Gmail@1234&accountId=1&groupId=1")
 						.contentType(MediaType.APPLICATION_FORM_URLENCODED))

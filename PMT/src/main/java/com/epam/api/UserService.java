@@ -3,9 +3,10 @@ package com.epam.api;
 import com.epam.dto.Response;
 import com.epam.dto.UserData;
 import com.epam.entities.UserDetails;
+import com.epam.exceptions.UserAlreadyExistException;
 
 public interface UserService {
-	public Response addUser(UserDetails user);
+	public boolean addUser(UserDetails user) throws UserAlreadyExistException;
 
 	public boolean userExist(UserData userData);
 

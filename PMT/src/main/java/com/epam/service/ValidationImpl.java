@@ -6,19 +6,14 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.epam.api.Validation;
 import com.epam.dto.AccountDetailDto;
 import com.epam.dto.Response;
-import com.epam.util.Loggers;
 
 @Service
 public class ValidationImpl implements Validation {
-
-	@Autowired
-	Loggers logger;
 
 	@Override
 	public Response isValidPassword(String password) {
@@ -63,7 +58,6 @@ public class ValidationImpl implements Validation {
 		} catch (URISyntaxException | MalformedURLException e) {
 			status.setStatus(false);
 			status.setMsg("InValid url");
-			logger.printError(ValidationImpl.class, "InValid url");
 		}
 		return status;
 	}

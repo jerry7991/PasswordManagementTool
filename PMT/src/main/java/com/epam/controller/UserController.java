@@ -10,6 +10,7 @@ import com.epam.api.UserService;
 import com.epam.dto.Response;
 import com.epam.dto.UserData;
 import com.epam.entities.UserDetails;
+import com.epam.exceptions.UserAlreadyExistException;
 
 @Controller
 @RequestMapping("/")
@@ -34,14 +35,14 @@ public class UserController {
 	}
 
 	@PostMapping("creatUser")
-	public ModelAndView addUser(String userName, String password) {
+	public ModelAndView addUser(String userName, String password) throws UserAlreadyExistException {
 		UserDetails userDetails = new UserDetails();
 		userDetails.setUserName(userName);
 		userDetails.setMasterPassword(password);
-		Response response = userService.addUser(userDetails);
+		boolean userAdded = userService.addUser(userDetails);
 		ModelAndView modelView = new ModelAndView();
 		modelView.setViewName("home");
-		modelView.addObject("message", response);
+		modelView.addObject("message", userAdded);
 		return modelView;
 	}
 

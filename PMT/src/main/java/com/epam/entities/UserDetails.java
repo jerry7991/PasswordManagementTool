@@ -45,9 +45,6 @@ public class UserDetails {
 	}
 
 	public void setGroupDetails(List<GroupDetails> groupDetails) {
-		groupDetails.forEach(group -> {
-
-		});
 		this.groupDetails = groupDetails;
 	}
 

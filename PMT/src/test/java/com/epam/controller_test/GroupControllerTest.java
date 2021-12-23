@@ -11,6 +11,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,12 +24,15 @@ import com.epam.controller.GroupController;
 import com.epam.dto.AccountDetailDto;
 import com.epam.dto.GroupDetailsDto;
 import com.epam.dto.UserDetailsDto;
+import com.epam.repositories.GroupRepository;
 
 @WebMvcTest(GroupController.class)
 @ContextConfiguration(classes = { GroupController.class })
 class GroupControllerTest {
 	@Autowired
 	MockMvc mockMvc;
+	@Mock
+	GroupRepository groupRepository;
 
 	@MockBean
 	private GroupService groupService;
@@ -84,7 +88,7 @@ class GroupControllerTest {
 
 	@Test
 	void testDeleteGroup() throws Exception {
-		when(groupService.deleteGroup(1, "google")).thenReturn(true);
+		when(groupRepository.existsById(1)).thenReturn(false);
 		when(groupService.getAllGroup()).thenReturn(userDetails.getGroupDetailsDto());
 		mockMvc.perform(get("/deleteGroup?groupName=google&groupId=1")).andExpect(status().isOk())
 				.andExpect(view().name("viewGroupBy"));

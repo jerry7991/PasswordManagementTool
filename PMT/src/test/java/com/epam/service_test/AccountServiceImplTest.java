@@ -4,8 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,13 +25,14 @@ import org.modelmapper.ModelMapper;
 import com.epam.api.Validation;
 import com.epam.dto.AccountDetailDto;
 import com.epam.dto.GroupDetailsDto;
-import com.epam.dto.Response;
 import com.epam.entities.AccountDetail;
 import com.epam.entities.GroupDetails;
+import com.epam.exceptions.AccountMappingWithGroupException;
+import com.epam.exceptions.AccountNotFoundException;
+import com.epam.exceptions.GroupNotFoundException;
 import com.epam.repositories.AccountRepository;
 import com.epam.repositories.GroupRepository;
 import com.epam.service.AccountServiceImpl;
-import com.epam.util.Loggers;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceImplTest {
@@ -43,9 +47,6 @@ class AccountServiceImplTest {
 
 	@Mock
 	private ModelMapper modelMapper;
-
-	@Mock
-	private Loggers LOGGER;
 
 	@InjectMocks
 	private AccountServiceImpl accountServiceImpl;
@@ -71,20 +72,26 @@ class AccountServiceImplTest {
 	}
 
 	@Test
-	void testAddAccount() {
-		when(validation.isAccountValid(accountDetailDto)).thenReturn(new Response(true, "valid"));
+	void testAddAccount() throws GroupNotFoundException {
+		when(accountRepository.countAccountByGroupIdAndAccountName(accountDetailDto.getAccountName(),
+				accountDetailDto.getGroupId())).thenReturn(BigInteger.valueOf(0));
 		Optional<GroupDetailsDto> optional = Optional.of(groupDetails);
 		Optional<GroupDetails> optionalGroup = Optional.of(modelMappers.map(optional.get(), GroupDetails.class));
 		when(groupRepository.findById(accountDetailDto.getGroupId())).thenReturn(optionalGroup);
 		when(modelMapper.map(accountDetailDto, AccountDetail.class))
 				.thenReturn(modelMappers.map(accountDetailDto, AccountDetail.class));
-		assertNotNull(accountServiceImpl.addAccount(accountDetailDto));
+		when(groupRepository.save(any(GroupDetails.class))).thenReturn(new GroupDetails());
+		assertTrue(accountServiceImpl.addAccount(accountDetailDto));
 	}
 
 	@Test
-	void testAddAccountEx() {
-		when(validation.isAccountValid(accountDetailDto)).thenReturn(new Response(false, "Invalid"));
-		assertEquals(0, accountServiceImpl.addAccount(accountDetailDto).size());
+	void testAddAccountDuplicateAccount() {
+		when(accountRepository.countAccountByGroupIdAndAccountName(accountDetailDto.getAccountName(),
+				accountDetailDto.getGroupId())).thenReturn(BigInteger.valueOf(1));
+		AccountMappingWithGroupException exception = assertThrows(AccountMappingWithGroupException.class, () -> {
+			accountServiceImpl.addAccount(accountDetailDto);
+		});
+		assertEquals("Account Allready mapped with given group.", exception.getMessage());
 	}
 
 	@Test
@@ -95,7 +102,7 @@ class AccountServiceImplTest {
 	}
 
 	@Test
-	void testUpdateAccount() {
+	void testUpdateAccount() throws AccountNotFoundException {
 		AccountDetailDto newAccount = new AccountDetailDto();
 		newAccount.setAccountId(1);
 		newAccount.setAccountName("updated");
@@ -106,17 +113,17 @@ class AccountServiceImplTest {
 		AccountDetail accountDetailPrev = modelMappers.map(groupDetails.getAccountsDto().get(0), AccountDetail.class);
 
 		when(accountRepository.findById(1)).thenReturn(Optional.of(accountDetailPrev));
-		when(accountRepository.findAccountByGroupId(2)).thenReturn(groupDetails.getAccountsDto().stream()
-				.map(accounts -> modelMappers.map(accounts, AccountDetail.class)).collect(Collectors.toList()));
 		accountServiceImpl.updateAccount(newAccount);
 		assertEquals(accountDetailPrev.getAccountName(), newAccount.getAccountName());
 	}
 
 	@Test
-	void testUpdateAccountEx() {
+	void testUpdateAccountEx() throws AccountNotFoundException {
 		when(accountRepository.findById(2)).thenReturn(Optional.empty());
-
-		assertNull(accountServiceImpl.updateAccount(accountDetailDto));
+		AccountNotFoundException exception = assertThrows(AccountNotFoundException.class, () -> {
+			accountServiceImpl.updateAccount(accountDetailDto);
+		});
+		assertEquals("Account not exist.", exception.getMessage());
 	}
 
 	@Test
@@ -133,21 +140,25 @@ class AccountServiceImplTest {
 	}
 
 	@Test
-	void testDeleteAccountById() {
+	void testDeleteAccountById() throws AccountNotFoundException {
 		when(accountRepository.existsById(accountDetailDto.getAccountId())).thenReturn(true);
-		assertNotNull(accountServiceImpl.deleteAccountById(accountDetailDto));
+		assertTrue(accountServiceImpl.deleteAccountById(accountDetailDto));
 	}
 
 	@Test
-	void testDeleteAccountByIdExc() {
+	void testDeleteAccountByIdExc() throws AccountNotFoundException {
 
 		when(accountRepository.existsById(2)).thenReturn(false);
 
-		assertNull(accountServiceImpl.deleteAccountById(accountDetailDto));
+		AccountNotFoundException exception = assertThrows(AccountNotFoundException.class, () -> {
+			accountServiceImpl.deleteAccountById(accountDetailDto);
+		});
+
+		assertEquals("Account not exist.", exception.getMessage());
 	}
 
 	@Test
-	void testFindAccountByAccountId() {
+	void testFindAccountByAccountId() throws AccountNotFoundException {
 		when(accountRepository.findById(2))
 				.thenReturn(Optional.of(modelMappers.map(accountDetailDto, AccountDetail.class)));
 		assertNull(accountServiceImpl.findAccountByAccountId(accountDetailDto.getAccountId()));
@@ -156,6 +167,9 @@ class AccountServiceImplTest {
 	@Test
 	void testFindAccountByAccountIdEx() {
 		when(accountRepository.findById(2)).thenReturn(Optional.empty());
-		assertNull(accountServiceImpl.findAccountByAccountId(accountDetailDto.getAccountId()));
+		AccountNotFoundException exception = assertThrows(AccountNotFoundException.class, () -> {
+			accountServiceImpl.findAccountByAccountId(accountDetailDto.getAccountId());
+		});
+		assertEquals("Account not exist.", exception.getMessage());
 	}
 }

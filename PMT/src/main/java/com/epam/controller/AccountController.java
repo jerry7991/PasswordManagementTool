@@ -10,6 +10,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.epam.api.AccountService;
 import com.epam.dto.AccountDetailDto;
+import com.epam.exceptions.AccountNotFoundException;
+import com.epam.exceptions.GroupNotFoundException;
 import com.epam.util.Constants;
 
 @Controller
@@ -28,8 +30,12 @@ public class AccountController {
 	}
 
 	@PostMapping("addAccount")
-	public ModelAndView addAccount(AccountDetailDto accountDetailDto) {
-		List<AccountDetailDto> accounts = accountService.addAccount(accountDetailDto);
+	public ModelAndView addAccount(AccountDetailDto accountDetailDto) throws GroupNotFoundException {
+		boolean isAdded = accountService.addAccount(accountDetailDto);
+		List<AccountDetailDto> accounts = null;
+		if (isAdded) {
+			accounts = accountService.findAccountByGroupId(accountDetailDto.getGroupId());
+		}
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName(Constants.ACCOUNT_CONTROLER);
 		modelAndView.addObject(Constants.ACCOUNT_RESPONSE, accounts);
@@ -37,8 +43,9 @@ public class AccountController {
 	}
 
 	@PostMapping("updateAccount")
-	public ModelAndView updateAccount(AccountDetailDto accountDetailDto) {
-		List<AccountDetailDto> updateAccounts = accountService.updateAccount(accountDetailDto);
+	public ModelAndView updateAccount(AccountDetailDto accountDetailDto) throws AccountNotFoundException {
+		accountService.updateAccount(accountDetailDto);
+		List<AccountDetailDto> updateAccounts = accountService.findAccountByGroupId(accountDetailDto.getGroupId());
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName(Constants.ACCOUNT_CONTROLER);
 		modelAndView.addObject(Constants.ACCOUNT_RESPONSE, updateAccounts);
@@ -47,8 +54,9 @@ public class AccountController {
 	}
 
 	@PostMapping("deleteAccount")
-	public ModelAndView deleteAccount(AccountDetailDto accountDetailDto) {
-		List<AccountDetailDto> updateAccounts = accountService.deleteAccountById(accountDetailDto);
+	public ModelAndView deleteAccount(AccountDetailDto accountDetailDto) throws AccountNotFoundException {
+		accountService.deleteAccountById(accountDetailDto);
+		List<AccountDetailDto> updateAccounts = accountService.findAccountByGroupId(accountDetailDto.getGroupId());
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName(Constants.ACCOUNT_CONTROLER);
 		modelAndView.addObject(Constants.ACCOUNT_RESPONSE, updateAccounts);
@@ -57,7 +65,7 @@ public class AccountController {
 	}
 
 	@GetMapping("showAccountByAccountID")
-	public ModelAndView showAccount(int accountId, int groupId) {
+	public ModelAndView showAccount(int accountId, int groupId) throws AccountNotFoundException {
 		AccountDetailDto accountDetailDto = accountService.findAccountByAccountId(accountId);
 		accountDetailDto.setGroupId(groupId);
 		ModelAndView modelAndView = new ModelAndView();

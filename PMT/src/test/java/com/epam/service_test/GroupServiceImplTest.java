@@ -1,9 +1,9 @@
 package com.epam.service_test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -21,14 +21,14 @@ import org.modelmapper.ModelMapper;
 
 import com.epam.api.Validation;
 import com.epam.dto.GroupDetailsDto;
-import com.epam.dto.Response;
 import com.epam.dto.UserData;
 import com.epam.entities.GroupDetails;
 import com.epam.entities.UserDetails;
+import com.epam.exceptions.GroupAlreadyExistException;
+import com.epam.exceptions.GroupNotFoundException;
 import com.epam.repositories.GroupRepository;
 import com.epam.repositories.UserRepository;
 import com.epam.service.GroupServiceImpl;
-import com.epam.util.Loggers;
 
 @ExtendWith(MockitoExtension.class)
 class GroupServiceImplTest {
@@ -40,9 +40,6 @@ class GroupServiceImplTest {
 	UserRepository userRepository;
 
 	@Mock
-	private Loggers LOGGER;
-
-	@Mock
 	private Validation validation;
 
 	@Mock
@@ -52,7 +49,7 @@ class GroupServiceImplTest {
 	private GroupServiceImpl groupServiceImpl;
 
 	@Mock
-	private static UserData userData;
+	private UserData userData;
 	private static UserDetails userDetails;
 	private GroupDetails groupDetails;
 	private ModelMapper localMapper;
@@ -77,36 +74,35 @@ class GroupServiceImplTest {
 	}
 
 	@Test
-	void testAddGroup() {
-		when(validation.isValidName("yahoo")).thenReturn(new Response(true, "valid"));
+	void testAddGroup() throws GroupAlreadyExistException {
 		when(userRepository.getById(userData.getId())).thenReturn(userDetails);
 		when(userRepository.save(userDetails)).thenReturn(userDetails);
+		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(BigInteger.valueOf(0));
 		assertTrue(groupServiceImpl.addGroup("yahoo"));
 	}
 
 	@Test
-	void testAddGroupEx() {
-		when(validation.isValidName("yahoo")).thenReturn(new Response(false, "Invalid"));
-		assertFalse(groupServiceImpl.addGroup("yahoo"));
-	}
-
-	@Test
-	void testAddGroupException() {
-		when(validation.isValidName("google")).thenReturn(new Response(true, "valid"));
+	void testAddGroupException() throws GroupAlreadyExistException {
 		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "google")).thenReturn(new BigInteger("1"));
-		assertFalse(groupServiceImpl.addGroup("google"));
+		GroupAlreadyExistException exception = assertThrows(GroupAlreadyExistException.class, () -> {
+			groupServiceImpl.addGroup("google");
+		});
+		assertEquals("Group already mapped with the user", exception.getMessage());
 	}
 
 	@Test
-	void testDeleteGroup() {
-		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(new BigInteger("1"));
-		assertTrue(groupServiceImpl.deleteGroup(userData.getId(), "yahoo"));
+	void testDeleteGroup() throws GroupNotFoundException {
+		when(groupRepository.existsById(0)).thenReturn(true);
+		assertTrue(!groupServiceImpl.deleteGroup(0));
 	}
 
 	@Test
 	void testDeleteGroupEx() {
-		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(null);
-		assertFalse(groupServiceImpl.deleteGroup(userData.getId(), "yahoo"));
+		when(groupRepository.existsById(0)).thenReturn(false);
+		GroupNotFoundException exception = assertThrows(GroupNotFoundException.class, () -> {
+			groupServiceImpl.deleteGroup(0);
+		});
+		assertEquals("Group not mapped with the user", exception.getMessage());
 	}
 
 	@Test
@@ -118,9 +114,9 @@ class GroupServiceImplTest {
 	}
 
 	@Test
-	void testModifyGroupName() {
+	void testModifyGroupName() throws GroupAlreadyExistException {
 		GroupDetails groupDetails = userDetails.getGroupDetails().get(0);
-		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(null);
+		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(BigInteger.valueOf(0));
 		when(groupRepository.getById(groupDetails.getGroupId())).thenReturn(groupDetails);
 		groupServiceImpl.modifyGroupName(groupDetails.getGroupId(), "yahoo");
 		assertEquals("yahoo", groupDetails.getGroupName());
@@ -129,19 +125,40 @@ class GroupServiceImplTest {
 	@Test
 	void testModifyGroupNameEx() {
 		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(new BigInteger("1"));
-		assertFalse(groupServiceImpl.modifyGroupName(userData.getId(), "yahoo").isStatus());
+		GroupAlreadyExistException exception = assertThrows(GroupAlreadyExistException.class, () -> {
+			groupServiceImpl.modifyGroupName(userData.getId(), "yahoo");
+		});
+		assertEquals("Already mapped with the user", exception.getMessage());
 	}
 
 	@Test
-	void testGetGroupByName() {
-		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(null);
+	void testGetGroupByName() throws GroupNotFoundException {
+		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(BigInteger.valueOf(1));
 		assertNull(groupServiceImpl.getGroupByName("yahoo"));
 	}
 
 	@Test
-	void testGetGroupByNameEx() {
-		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(new BigInteger("1"));
-		assertNull(groupServiceImpl.getGroupByName("yahoo"));
+	void testGetGroupByNameEx() throws GroupNotFoundException {
+		when(groupRepository.existsByGroupNameAndUserId(userData.getId(), "yahoo")).thenReturn(BigInteger.valueOf(0));
+		GroupNotFoundException exception = assertThrows(GroupNotFoundException.class, () -> {
+			groupServiceImpl.getGroupByName("yahoo");
+		});
+		assertEquals("Group not mapped with the user", exception.getMessage());
+	}
+
+	@Test
+	void testDeleteGroupById() throws GroupNotFoundException {
+		when(groupRepository.existsById(1)).thenReturn(true);
+		assertTrue(!groupServiceImpl.deleteGroup(1));
+	}
+
+	@Test
+	void testDeleteGroupByIdEx() throws GroupNotFoundException {
+		when(groupRepository.existsById(1)).thenReturn(false);
+		GroupNotFoundException exception = assertThrows(GroupNotFoundException.class, () -> {
+			groupServiceImpl.deleteGroup(1);
+		});
+		assertEquals("Group not mapped with the user", exception.getMessage());
 	}
 
 }

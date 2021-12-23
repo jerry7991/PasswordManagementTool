@@ -10,6 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GroupDetailsDto {
+	private int userId;
+
 	private int groupId;
 
 	private String groupName;

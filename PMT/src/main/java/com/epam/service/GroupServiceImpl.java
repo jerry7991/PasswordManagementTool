@@ -1,25 +1,24 @@
 package com.epam.service;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.epam.api.GroupService;
-import com.epam.api.Validation;
 import com.epam.dto.GroupDetailsDto;
-import com.epam.dto.Response;
 import com.epam.dto.UserData;
 import com.epam.entities.GroupDetails;
 import com.epam.entities.UserDetails;
 import com.epam.exceptions.GroupAlreadyExistException;
 import com.epam.exceptions.GroupNotFoundException;
-import com.epam.exceptions.ValidationFailedException;
 import com.epam.repositories.GroupRepository;
 import com.epam.repositories.UserRepository;
-import com.epam.util.Loggers;
 
 @Service
 public class GroupServiceImpl implements GroupService {
@@ -36,53 +35,32 @@ public class GroupServiceImpl implements GroupService {
 	@Autowired
 	ModelMapper modelMapper;
 
-	@Autowired
-	private Loggers logger;
-
-	@Autowired
-	private Validation validation;
+	private final Logger logger = LogManager.getLogger(GroupServiceImpl.class);
 
 	@Override
-	public boolean addGroup(String groupName) {
-		Response response = validation.isValidName(groupName);
-		try {
-			if (!response.isStatus()) {
-				throw new ValidationFailedException((String) response.getMsg());
-			}
-			if (groupRepository.existsByGroupNameAndUserId(userData.getId(), groupName) != null) {
-				throw new GroupAlreadyExistException(groupName + " already mapped with the user");
-			}
-
-			UserDetails userDetails = userRepository.getById(userData.getId());
-			GroupDetails groupDetails = new GroupDetails();
-			groupDetails.setGroupName(groupName);
-			userDetails.getGroupDetails().add(groupDetails);
-			UserDetails addedUserDetails = userRepository.save(userDetails);
-			response.setMsg("Group Added");
-			response.setStatus(addedUserDetails != null);
-			logger.printDebug(GroupServiceImpl.class, "User Details saved");
-		} catch (ValidationFailedException | GroupAlreadyExistException ex) {
-			logger.printError(GroupServiceImpl.class, ex.getMessage());
-			response = new Response(false, ex.getMessage());
+	public boolean addGroup(String groupName) throws GroupAlreadyExistException {
+		if (groupRepository.existsByGroupNameAndUserId(userData.getId(), groupName)
+				.compareTo(BigInteger.valueOf(0)) > 0) {
+			throw new GroupAlreadyExistException("Group already mapped with the user");
 		}
-		return response.isStatus();
+
+		UserDetails userDetails = userRepository.getById(userData.getId());
+		GroupDetails groupDetails = new GroupDetails();
+		groupDetails.setGroupName(groupName);
+		userDetails.getGroupDetails().add(groupDetails);
+		UserDetails addedUserDetails = userRepository.save(userDetails);
+		logger.debug("User Details saved");
+		return addedUserDetails != null;
 	}
 
 	@Override
-	public boolean deleteGroup(int groupId, String groupName) {
-		boolean isDeleted = false;
-		try {
-			if (groupRepository.existsByGroupNameAndUserId(userData.getId(), groupName) == null) {
-				throw new GroupNotFoundException(groupName + " not mapped with the user");
-			}
-
-			groupRepository.deleteById(groupId);
-			isDeleted = !groupRepository.existsById(groupId);
-
-		} catch (GroupNotFoundException ex) {
-			logger.printError(GroupServiceImpl.class, ex.getMessage());
+	public boolean deleteGroup(int groupId) throws GroupNotFoundException {
+		if (!groupRepository.existsById(groupId)) {
+			throw new GroupNotFoundException("Group not mapped with the user");
 		}
-		return isDeleted;
+
+		groupRepository.deleteById(groupId);
+		return !groupRepository.existsById(groupId);
 	}
 
 	@Override
@@ -94,39 +72,25 @@ public class GroupServiceImpl implements GroupService {
 	}
 
 	@Override
-	public Response modifyGroupName(int groupId, String newGroupName) {
-		Response response = null;
-		try {
-			if (groupRepository.existsByGroupNameAndUserId(userData.getId(), newGroupName) != null) {
-				throw new GroupAlreadyExistException(newGroupName + " already mapped with the user");
-			}
-
-			GroupDetails groupDetails = groupRepository.getById(groupId);
-			groupDetails.setGroupName(newGroupName);
-
-			groupRepository.save(groupDetails);
-
-			response = new Response(true, "Group Updated");
-
-		} catch (GroupAlreadyExistException ex) {
-			response = new Response(false, ex.getMessage());
-			logger.printError(GroupServiceImpl.class, ex.getMessage());
+	public boolean modifyGroupName(int groupId, String newGroupName) throws GroupAlreadyExistException {
+		if (groupRepository.existsByGroupNameAndUserId(userData.getId(), newGroupName)
+				.compareTo(BigInteger.valueOf(0)) > 0) {
+			throw new GroupAlreadyExistException("Already mapped with the user");
 		}
-		return response;
+
+		GroupDetails groupDetails = groupRepository.getById(groupId);
+		groupDetails.setGroupName(newGroupName);
+
+		return groupRepository.save(groupDetails) != null;
 	}
 
 	@Override
-	public GroupDetailsDto getGroupByName(String groupName) {
-		GroupDetailsDto groupDetailsDto = null;
-		try {
-			if (groupRepository.existsByGroupNameAndUserId(userData.getId(), groupName) != null) {
-				throw new GroupNotFoundException(groupName + " not mapped with the user");
-			}
-			groupDetailsDto = modelMapper.map(groupRepository.findByGroupNameAndUserId(userData.getId(), groupName),
-					GroupDetailsDto.class);
-		} catch (GroupNotFoundException ex) {
-			logger.printError(GroupServiceImpl.class, ex.getMessage());
+	public GroupDetailsDto getGroupByName(String groupName) throws GroupNotFoundException {
+		if (groupRepository.existsByGroupNameAndUserId(userData.getId(), groupName)
+				.compareTo(BigInteger.valueOf(0)) == 0) {
+			throw new GroupNotFoundException("Group not mapped with the user");
 		}
-		return groupDetailsDto;
+		return modelMapper.map(groupRepository.findByGroupNameAndUserId(userData.getId(), groupName),
+				GroupDetailsDto.class);
 	}
 }
