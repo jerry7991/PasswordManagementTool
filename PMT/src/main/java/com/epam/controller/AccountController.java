@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.epam.api.AccountService;
 import com.epam.dto.AccountDetailDto;
+import com.epam.exceptions.AccountMappingWithGroupException;
 import com.epam.exceptions.AccountNotFoundException;
 import com.epam.exceptions.GroupNotFoundException;
 import com.epam.util.Constants;
@@ -30,7 +31,8 @@ public class AccountController {
 	}
 
 	@PostMapping("addAccount")
-	public ModelAndView addAccount(AccountDetailDto accountDetailDto) throws GroupNotFoundException {
+	public ModelAndView addAccount(AccountDetailDto accountDetailDto)
+			throws GroupNotFoundException, AccountMappingWithGroupException {
 		boolean isAdded = accountService.addAccount(accountDetailDto);
 		List<AccountDetailDto> accounts = null;
 		if (isAdded) {

@@ -2,6 +2,7 @@ package com.epam.controller_test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -18,12 +19,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.web.util.NestedServletException;
 
 import com.epam.api.AccountService;
 import com.epam.controller.AccountRestController;
 import com.epam.dto.AccountDetailDto;
 import com.epam.dto.GroupDetailsDto;
 import com.epam.dto.UserDetailsDto;
+import com.epam.exceptions.AccountMappingWithGroupException;
+import com.epam.exceptions.GroupNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 @WebMvcTest(AccountRestController.class)
@@ -34,7 +38,6 @@ class AccountRestControllerTest extends JsonHandler {
 
 	@MockBean
 	private AccountService accountService;
-
 	private UserDetailsDto userDetails;
 	private List<AccountDetailDto> accounts;
 	private GroupDetailsDto groupDetails;
@@ -67,8 +70,7 @@ class AccountRestControllerTest extends JsonHandler {
 
 		when(accountService.findAccountByGroupId(1)).thenReturn(accounts);
 
-		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri).accept(MediaType.APPLICATION_JSON_VALUE))
-				.andReturn();
+		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(uri)).andReturn();
 		int status = mvcResult.getResponse().getStatus();
 		assertEquals(200, status);
 		String content = mvcResult.getResponse().getContentAsString();
@@ -81,16 +83,47 @@ class AccountRestControllerTest extends JsonHandler {
 
 		when(accountService.addAccount(any(AccountDetailDto.class))).thenReturn(true);
 
-		System.out.println("accountService.addAccount(accounts.get(0)) " + accountService.addAccount(accounts.get(0)));
 		String uri = "/pmt/groups/accounts/addAccount";
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(uri)
-				.contentType(MediaType.APPLICATION_JSON_VALUE).content(mapToJson(accounts.get(0)))).andReturn();
+				.contentType(MediaType.APPLICATION_JSON_VALUE).content(super.mapToJson(accounts.get(0)))).andReturn();
 		int status = mvcResult.getResponse().getStatus();
 		String content = mvcResult.getResponse().getContentAsString();
-		System.out.println("Contentssss :: " + content);
 		assertEquals(200, status);
 		boolean isAdded = mapFromJson(content, Boolean.class);
 		assertEquals(true, isAdded);
+	}
+
+	@Test
+	void testAddAccountDuplicate() throws Exception {
+
+		String uri = "/pmt/groups/accounts/addAccount";
+		when(accountService.addAccount(any(AccountDetailDto.class)))
+				.thenThrow(new AccountMappingWithGroupException("Account Already mapped with given group."));
+		try {
+			mockMvc.perform(MockMvcRequestBuilders.post(uri).contentType(MediaType.APPLICATION_JSON_VALUE)
+					.content(mapToJson(accounts.get(0)))).andReturn();
+		} catch (NestedServletException ex) {
+			AccountMappingWithGroupException exception = assertThrows(AccountMappingWithGroupException.class, () -> {
+				throw ex.getCause();
+			});
+			assertEquals("Account Already mapped with given group.", exception.getMessage());
+		}
+	}
+
+	@Test
+	void testAddAccountGroupNotFound() throws Exception {
+		String uri = "/pmt/groups/accounts/addAccount";
+		when(accountService.addAccount(any(AccountDetailDto.class)))
+				.thenThrow(new GroupNotFoundException("Group doesn't exist."));
+		try {
+			mockMvc.perform(MockMvcRequestBuilders.post(uri).contentType(MediaType.APPLICATION_JSON_VALUE)
+					.content(mapToJson(accounts.get(0)))).andReturn();
+		} catch (NestedServletException ex) {
+			GroupNotFoundException exception = assertThrows(GroupNotFoundException.class, () -> {
+				throw ex.getCause();
+			});
+			assertEquals("Group doesn't exist.", exception.getMessage());
+		}
 	}
 
 	@Test

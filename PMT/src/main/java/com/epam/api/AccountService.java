@@ -4,11 +4,13 @@ import java.util.List;
 
 import com.epam.dto.AccountDetailDto;
 import com.epam.entities.AccountDetail;
+import com.epam.exceptions.AccountMappingWithGroupException;
 import com.epam.exceptions.AccountNotFoundException;
 import com.epam.exceptions.GroupNotFoundException;
 
 public interface AccountService {
-	boolean addAccount(AccountDetailDto accountDetailDto) throws GroupNotFoundException;
+	boolean addAccount(AccountDetailDto accountDetailDto)
+			throws GroupNotFoundException, AccountMappingWithGroupException;
 
 	List<AccountDetailDto> findAccountByGroupId(int groupFk);
 

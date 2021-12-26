@@ -36,7 +36,8 @@ public class AccountServiceImpl implements AccountService {
 	private ModelMapper modelMapper;
 
 	@Override
-	public boolean addAccount(AccountDetailDto accountDetailDto) throws GroupNotFoundException {
+	public boolean addAccount(AccountDetailDto accountDetailDto)
+			throws GroupNotFoundException, AccountMappingWithGroupException {
 		if (isAlreadyMappedAccountWithGroup(accountDetailDto.getAccountName(), accountDetailDto.getGroupId())) {
 			throw new AccountMappingWithGroupException("Account Allready mapped with given group.");
 		}

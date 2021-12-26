@@ -72,7 +72,7 @@ class AccountServiceImplTest {
 	}
 
 	@Test
-	void testAddAccount() throws GroupNotFoundException {
+	void testAddAccount() throws GroupNotFoundException, AccountMappingWithGroupException {
 		when(accountRepository.countAccountByGroupIdAndAccountName(accountDetailDto.getAccountName(),
 				accountDetailDto.getGroupId())).thenReturn(BigInteger.valueOf(0));
 		Optional<GroupDetailsDto> optional = Optional.of(groupDetails);

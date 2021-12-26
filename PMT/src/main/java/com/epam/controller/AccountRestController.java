@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.api.AccountService;
 import com.epam.dto.AccountDetailDto;
+import com.epam.exceptions.AccountMappingWithGroupException;
 import com.epam.exceptions.AccountNotFoundException;
 import com.epam.exceptions.GroupNotFoundException;
 
@@ -33,7 +34,7 @@ public class AccountRestController {
 
 	@PostMapping("addAccount")
 	public ResponseEntity<Boolean> addAccount(@RequestBody AccountDetailDto accountDetailDto)
-			throws GroupNotFoundException {
+			throws GroupNotFoundException, AccountMappingWithGroupException {
 		boolean isAdded = accountService.addAccount(accountDetailDto);
 		return new ResponseEntity<>(isAdded, isAdded ? HttpStatus.OK : HttpStatus.CONFLICT);
 	}
