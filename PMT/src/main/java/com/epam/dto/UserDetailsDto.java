@@ -17,5 +17,7 @@ public class UserDetailsDto {
 
 	private List<GroupDetailsDto> groupDetailsDto;
 
+	private String token;
+
 	private String masterPassword;
 }

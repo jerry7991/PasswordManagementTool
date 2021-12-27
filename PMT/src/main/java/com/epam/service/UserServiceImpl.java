@@ -1,23 +1,32 @@
 package com.epam.service;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.epam.api.UserService;
 import com.epam.dto.Response;
 import com.epam.dto.UserData;
+import com.epam.dto.UserPrincipal;
+import com.epam.entities.AuthGroup;
 import com.epam.entities.UserDetails;
 import com.epam.exceptions.AuthenticationFailedExceptions;
 import com.epam.exceptions.UserAlreadyExistException;
+import com.epam.repositories.AuthGroupRepository;
 import com.epam.repositories.UserRepository;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	AuthGroupRepository authGroupRepository;
 
 	private final Logger logger = LogManager.getLogger(UserServiceImpl.class);
 
@@ -74,5 +83,17 @@ public class UserServiceImpl implements UserService {
 			logger.error(ex.getMessage());
 		}
 		return response;
+	}
+
+	@Override
+	public org.springframework.security.core.userdetails.UserDetails loadUserByUsername(String username)
+			throws UsernameNotFoundException {
+		UserDetails userDetails = userRepository.findByUserName(username);
+		if (userDetails == null) {
+			throw new UsernameNotFoundException("User Not Found With This UserName" + username);
+		}
+		List<AuthGroup> authGroup = authGroupRepository.findByUsername(username);
+		return new UserPrincipal(userDetails, authGroup);
+
 	}
 }
