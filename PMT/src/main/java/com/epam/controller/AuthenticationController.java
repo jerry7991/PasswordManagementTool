@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.epam.config.JWTTokenHelper;
-import com.epam.dto.UserDetailsDto;
+import com.epam.dto.UserData;
 
 @RestController
 @CrossOrigin
@@ -29,13 +29,13 @@ public class AuthenticationController {
 	private UserDetailsService userDetailsService;
 
 	@PostMapping("/token")
-	public ResponseEntity<?> generateToken(@RequestBody UserDetailsDto userDTO) throws UsernameNotFoundException {
-		this.authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(userDTO.getUserName(), userDTO.getMasterPassword()));
+	public ResponseEntity<?> generateToken(@RequestBody UserData userData) throws UsernameNotFoundException {
+		this.authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(userData.getUserName(), userData.getPassword()));
 
-		UserDetails userDetails = this.userDetailsService.loadUserByUsername(userDTO.getUserName());
+		UserDetails userDetails = this.userDetailsService.loadUserByUsername(userData.getUserName());
 		String token = this.jWTTokenHelper.generateToken(userDetails);
-		userDTO.setToken(token);
-		return ResponseEntity.ok(userDTO);
+		userData.setToken(token);
+		return ResponseEntity.ok(userData);
 	}
 }

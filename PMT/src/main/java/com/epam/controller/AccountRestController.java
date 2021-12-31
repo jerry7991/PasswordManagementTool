@@ -32,21 +32,21 @@ public class AccountRestController {
 		return new ResponseEntity<>(accounts, HttpStatus.OK);
 	}
 
-	@PostMapping("addAccount")
+	@PostMapping("/addAccount")
 	public ResponseEntity<Boolean> addAccount(@RequestBody AccountDetailDto accountDetailDto)
 			throws GroupNotFoundException, AccountMappingWithGroupException {
 		boolean isAdded = accountService.addAccount(accountDetailDto);
 		return new ResponseEntity<>(isAdded, isAdded ? HttpStatus.OK : HttpStatus.CONFLICT);
 	}
 
-	@PutMapping("updateAccount")
+	@PutMapping("/updateAccount")
 	public ResponseEntity<Boolean> updateAccount(@RequestBody AccountDetailDto accountDetailDto)
 			throws AccountNotFoundException {
 		boolean updated = accountService.updateAccount(accountDetailDto);
 		return new ResponseEntity<>(updated, updated ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
 	}
 
-	@DeleteMapping("deleteAccount")
+	@DeleteMapping("/deleteAccount")
 	public ResponseEntity<Boolean> deleteAccount(@RequestBody AccountDetailDto accountDetailDto)
 			throws AccountNotFoundException {
 		boolean deleted = accountService.deleteAccountById(accountDetailDto);

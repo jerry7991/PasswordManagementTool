@@ -9,25 +9,32 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import com.epam.api.GroupService;
-import com.epam.controller.GroupRestController;
 import com.epam.dto.AccountDetailDto;
 import com.epam.dto.GroupDetailsDto;
 import com.epam.dto.UserData;
 import com.epam.dto.UserDetailsDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-@WebMvcTest(GroupRestController.class)
-@ContextConfiguration(classes = { GroupRestController.class })
+//@WebMvcTest(GroupRestController.class)
+//@ContextConfiguration(classes = { GroupRestController.class })
+
+@WithMockUser
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class GroupRestControllerTest extends JsonHandler {
 
 	@Autowired

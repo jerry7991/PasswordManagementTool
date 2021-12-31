@@ -20,7 +20,7 @@ public class UserRestController {
 	@Autowired
 	private UserService userService;
 
-	@PostMapping(path = "/login", consumes = "application/json")
+	@PostMapping(path = "/login")
 	public ResponseEntity<Object> login(@RequestBody UserData userData) {
 		return new ResponseEntity<>(userService.login(userData).getMsg(), HttpStatus.OK);
 	}

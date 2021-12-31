@@ -35,10 +35,10 @@ public class UserController {
 	}
 
 	@PostMapping("creatUser")
-	public ModelAndView addUser(String userName, String password) throws UserAlreadyExistException {
+	public ModelAndView addUser(UserData userData) throws UserAlreadyExistException {
 		UserDetails userDetails = new UserDetails();
-		userDetails.setUserName(userName);
-		userDetails.setMasterPassword(password);
+		userDetails.setUserName(userData.getUserName());
+		userDetails.setMasterPassword(userData.getPassword());
 		boolean userAdded = userService.addUser(userDetails);
 		ModelAndView modelView = new ModelAndView();
 		modelView.setViewName("home");

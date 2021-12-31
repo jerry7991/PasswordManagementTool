@@ -74,8 +74,8 @@ public class GlobalExceptionHandler {
 		response.put(Constants.SERVICE, "addUser");
 		response.put(Constants.TIME_STAMP, new Date().toString());
 		response.put(Constants.ERROR, userAlreadyExistException.getMessage());
-		response.put(Constants.STATUS, HttpStatus.NOT_FOUND.name());
-		return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+		response.put(Constants.STATUS, HttpStatus.CONFLICT.name());
+		return new ResponseEntity<>(response, HttpStatus.CONFLICT);
 	}
 
 }

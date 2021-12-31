@@ -6,7 +6,16 @@ import org.springframework.stereotype.Component;
 public class UserData {
 	private String userName;
 	private String password;
+	private String token;
 	private int id;
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
 
 	public int getId() {
 		return id;

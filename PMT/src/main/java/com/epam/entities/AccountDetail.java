@@ -20,7 +20,7 @@ public class AccountDetail {
 	private int accountId;
 
 	@Column(name = "ACCOUNT_NAME")
-	@Pattern(regexp = "(?=.*[A-Z])(?=.*[0-9])(?=\\S+$).{5,20}$", message = "Size:{5, 20}, Atleast 1 {upper,numeric}!")
+	@Pattern(regexp = "(?=.*[A-Z])(?=\\S+$).{5,20}$", message = "Size:{5, 20}, Atleast 1 {upper}!")
 	private String accountName;
 
 //	@Pattern(regexp = "/[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+~#?&/=]*)/", message = "Please enter valid url-{http://www.epam.com}!")

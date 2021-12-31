@@ -11,39 +11,55 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.util.NestedServletException;
 
 import com.epam.api.AccountService;
-import com.epam.controller.AccountRestController;
 import com.epam.dto.AccountDetailDto;
 import com.epam.dto.GroupDetailsDto;
 import com.epam.dto.UserDetailsDto;
 import com.epam.exceptions.AccountMappingWithGroupException;
 import com.epam.exceptions.GroupNotFoundException;
+import com.epam.service.UserServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-@WebMvcTest(AccountRestController.class)
-@ContextConfiguration(classes = { AccountRestController.class })
+//@WebMvcTest(AccountRestController.class)
+//@ContextConfiguration(classes = { AccountRestController.class })
+//@WithMockUser
+@WithMockUser
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class AccountRestControllerTest extends JsonHandler {
 	@Autowired
 	MockMvc mockMvc;
 
 	@MockBean
 	private AccountService accountService;
+
+	@MockBean
+	private UserServiceImpl userServiceImpl;
+
 	private UserDetailsDto userDetails;
 	private List<AccountDetailDto> accounts;
 	private GroupDetailsDto groupDetails;
 
+	private ModelMapper modelMapper;
+
 	@BeforeEach
-	public void init() {
+	public void init() throws JsonProcessingException, Exception {
+		modelMapper = new ModelMapper();
 		groupDetails = new GroupDetailsDto();
 		userDetails = new UserDetailsDto();
 		userDetails.setUserId(1);
@@ -128,7 +144,6 @@ class AccountRestControllerTest extends JsonHandler {
 
 	@Test
 	void testUpdateAccount() throws JsonProcessingException, Exception {
-
 		when(accountService.updateAccount(any(AccountDetailDto.class))).thenReturn(true);
 		String uri = "/pmt/groups/accounts/updateAccount";
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.put(uri)

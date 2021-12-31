@@ -1,4 +1,4 @@
-package com.epam;
+package com.epam.config;
 
 import java.util.ArrayList;
 
@@ -28,4 +28,5 @@ public class ApplicationSwaggerConfig {
 				new Contact("Anup Kumar Singh", "https://localhost:8080/pmt", "anup@gmail.com"),
 				"Apache License Version", "https:/apache.com", new ArrayList());
 	}
+
 }
