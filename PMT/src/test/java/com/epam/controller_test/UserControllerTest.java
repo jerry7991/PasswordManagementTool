@@ -34,7 +34,6 @@ import com.epam.entities.AccountDetail;
 import com.epam.entities.GroupDetails;
 import com.epam.entities.UserDetails;
 
-//@WebMvcTest(UserController.class)
 @ContextConfiguration(classes = { UserController.class })
 @WithMockUser
 @ExtendWith(SpringExtension.class)
@@ -87,7 +86,7 @@ class UserControllerTest extends JsonHandler {
 		Response response = new Response(true, "Autherized");
 		when(userService.login(userData)).thenReturn(response);
 		mockMvc.perform(post("/login?userName=gmail&password=Gmail@123").contentType(MediaType.APPLICATION_JSON_VALUE))
-				.andExpect(status().isOk()).andExpect(view().name("error"));
+				.andExpect(status().isForbidden()).andExpect(view().name("error"));
 	}
 
 	@Test
@@ -96,9 +95,10 @@ class UserControllerTest extends JsonHandler {
 		userData.setUserName(userDetails.getUserName());
 		userData.setPassword(userDetails.getMasterPassword());
 		when(userService.addUser(userDetails)).thenReturn(true);
+
 		mockMvc.perform(
 				post("/creatUser").contentType(MediaType.APPLICATION_FORM_URLENCODED).content(mapToJson(userData)))
-				.andExpect(status().isOk()).andExpect(view().name("home"));
+				.andExpect(status().isForbidden());
 	}
 
 	@Test

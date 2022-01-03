@@ -55,7 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http
 
 				.csrf().disable().cors().and().authorizeRequests()
-				.antMatchers("/token", "/home/", "/swagger-ui/**", "/pmt/addUser/", "/creatUser/").permitAll()
+				.antMatchers("/token", "/home/", "/swagger-ui/**", "/pmt/addUser/", "/creatUser").permitAll()
 				.anyRequest().authenticated().and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

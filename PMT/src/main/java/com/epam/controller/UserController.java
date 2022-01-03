@@ -13,13 +13,12 @@ import com.epam.entities.UserDetails;
 import com.epam.exceptions.UserAlreadyExistException;
 
 @Controller
-@RequestMapping("/")
 public class UserController {
 
 	@Autowired
 	private UserService userService;
 
-	@PostMapping("login")
+	@PostMapping("/login")
 	public ModelAndView login(UserData userData) {
 		Response response = userService.login(userData);
 		ModelAndView modelView = new ModelAndView();
@@ -34,7 +33,7 @@ public class UserController {
 		return modelView;
 	}
 
-	@PostMapping("creatUser")
+	@PostMapping("/creatUser")
 	public ModelAndView addUser(UserData userData) throws UserAlreadyExistException {
 		UserDetails userDetails = new UserDetails();
 		userDetails.setUserName(userData.getUserName());
@@ -46,12 +45,12 @@ public class UserController {
 		return modelView;
 	}
 
-	@RequestMapping("home")
+	@RequestMapping("/home")
 	public String home() {
 		return "home";
 	}
 
-	@RequestMapping("addUser")
+	@RequestMapping("/addUser")
 	public String addNewUser() {
 		return "AddUser";
 	}
